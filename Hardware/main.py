@@ -4,6 +4,7 @@ import signal
 import time
 import sys
 import comm_pb2
+import serverComm
 
 from pirc522 import RFID
 
@@ -49,6 +50,7 @@ while run:
             dataSerial = comm_pb2.RFIDAuthData()
             dataSerial.ID = 1
             dataSerial.data = bytes(data)
+            serverComm.sendStatus(dataSerial)
         #util.read_out(1)
 
         print("\nDeauthorizing")
