@@ -1,5 +1,6 @@
 import socket
 import os
+import threading
 import comm_pb2
 
 
@@ -23,13 +24,18 @@ except:
 def sendStatus(data: comm_pb2.RFIDAuthData):
     client.sendall(data.SerializeToString())
 
-while True:
-    try:
-        data = client.recv(128)
-        data = comm_pb2.RFIDAuthData()
-        data.ParseFromString(data)
-        print(f"Received: {str(data.ID)} -> {str(data.data)}")
-    except:
-        break
+
+def waitRead():
+    while True:
+        try:
+            data = client.recv(128)
+            data = comm_pb2.RFIDAuthData()
+            data.ParseFromString(data)
+            print(f"Received: {str(data.ID)} -> {str(data.data)}")
+        except:
+            break
+
+# Thread the reading
+threading.Thread(target=waitRead).start()
         
 
