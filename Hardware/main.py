@@ -3,6 +3,7 @@
 import signal
 import time
 import sys
+import comm_pb2
 
 from pirc522 import RFID
 
@@ -45,11 +46,9 @@ while run:
         error = util.do_auth(1)
         if not error:
             (error, data) = util.rfid.read(1)
-            try:
-                print("ADDR (1): "+bytes(data).decode('utf-8'))
-            except:
-                print("Data not string encoded")
-            print("ADDR (1-raw): "+str(data))
+            dataSerial = comm_pb2.RFIDAuthData()
+            dataSerial.ID = 1
+            dataSerial.data = bytes(data)
         #util.read_out(1)
 
         print("\nDeauthorizing")

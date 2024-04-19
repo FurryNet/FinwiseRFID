@@ -1,0 +1,6 @@
+syntax = "proto2";
+
+message RFIDAuthData {
+  required uint32 ID = 1;
+  required bytes data = 2;
+}
