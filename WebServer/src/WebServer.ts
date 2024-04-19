@@ -29,10 +29,15 @@ ws_server.on('connection', async (ws: wsClient, req)=> {
 
   // Verify if the request exists
   const reqKey = (parse(req.url, true).query)['reqKey'] as string;
-  if(!reqKey)
+  if(!reqKey) {
+    console.log("WS Rejected: Missing Request Key");
     return ws.close(1008, "Invalid Request");
-  if(await redis.exists(`${redisReqIDPrefix}${reqKey}`) === 0)
+  }
+    
+  if(await redis.exists(`${redisReqIDPrefix}${reqKey}`) === 0) {
+    console.log("WS Rejected: Invalid Request Key");
     return ws.close(1008, "Invalid Request");
+  }
 
   // Setup the valid client
   ws.reqKey = reqKey;
