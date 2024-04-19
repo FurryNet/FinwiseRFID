@@ -1,4 +1,4 @@
-## SAMPLE CODE, MOFIDY!!!
+# Raspberry PI-based hardware/server, still experimenting with ESP-IDF based hardware
 
 import signal
 import time
