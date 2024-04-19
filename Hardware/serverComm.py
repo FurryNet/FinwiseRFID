@@ -31,7 +31,7 @@ def waitRead():
             data = client.recv(128)
             data = comm_pb2.RFIDAuthData()
             data.ParseFromString(data)
-            print(f"Received: {str(data.ID)} -> {str(data.data)}")
+            print(f"Received: {str(data.ID)} -> {str(data.data)}", flush=True)
         except:
             break
 
