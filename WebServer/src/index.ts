@@ -23,14 +23,14 @@ export const server = createServer((socket)=> {
       const req = (await redis.get(reqKey))?.split(":");
       if(!req) {
         console.log("Received invalid auth request from client");
-        socket.write(RFIDAuthData.encode(new RFIDAuthData({ID: reqType.checkAuth, data: Buffer.from('Invalid RFID Card', 'utf-8')})).finish());
+        socket.write(RFIDAuthData.encode(RFIDAuthData.create({ID: reqType.checkAuth, data: Buffer.from('Invalid RFID Card', 'utf-8')})).finish());
       } else if(req[1] === "approved") {
         console.log("Received Duplicate Auth Request from Client");
-        socket.write(RFIDAuthData.encode(new RFIDAuthData({ID: reqType.checkAuth, data: Buffer.from('Authentication already completed, maybe a site glitch?', 'utf-8')})).finish());
+        socket.write(RFIDAuthData.encode(RFIDAuthData.create({ID: reqType.checkAuth, data: Buffer.from('Authentication already completed, maybe a site glitch?', 'utf-8')})).finish());
       } else if(req[1] === "pending") {
         // Approve user's request
         await redis.set(reqKey, `${req[0]}:approved`);
-        socket.write(RFIDAuthData.encode(new RFIDAuthData({ID: reqType.checkAuth, data: Buffer.from('Authentication Success! You should be automatically logged in, if not, you can use the check button to manually do so.', 'utf-8')})).finish());
+        socket.write(RFIDAuthData.encode(RFIDAuthData.create({ID: reqType.checkAuth, data: Buffer.from('Authentication Success! You should be automatically logged in, if not, you can use the check button to manually do so.', 'utf-8')})).finish());
         const client = searchClient(reqKey);
         client?.send("approved");
         client?.close();
@@ -40,7 +40,7 @@ export const server = createServer((socket)=> {
 
     default:
       console.log("Invalid Request Received from Client");
-      socket.write(RFIDAuthData.encode(new RFIDAuthData({ID: 0, data: Buffer.from('Invalid Request ID', 'utf-8')})).finish());
+      socket.write(RFIDAuthData.encode(RFIDAuthData.create({ID: 0, data: Buffer.from('Invalid Request ID', 'utf-8')})).finish());
       break;
     }
   });
