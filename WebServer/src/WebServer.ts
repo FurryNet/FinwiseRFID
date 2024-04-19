@@ -49,6 +49,6 @@ ws_server.on('connection', async (ws: wsClient, req)=> {
 
 
 
-server.listen(80, ()=> {
-  console.log("RFID REST Server is listening on port 80");
+server.listen(8080, ()=> {
+  console.log("RFID REST Server is listening on port 8080");
 });
