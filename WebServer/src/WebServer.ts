@@ -1,11 +1,12 @@
 import { createServer } from 'http';
 import websocket from "ws";
-import { URL } from 'url';
+import { parse } from 'url';
 import { redis, redisPrefix } from './database';
 
 
 const server = createServer();
-const rediReqPrefix = `${redisPrefix}RFID:REQUEST:`;
+const redisReqIDPrefix = `${redisPrefix}RFID:ID:`;
+
 
 // Extend ws client to include request key
 interface wsClient extends websocket {
@@ -27,10 +28,10 @@ ws_server.on('connection', async (ws: wsClient, req)=> {
     return ws.close(1008, "Invalid Request");
 
   // Verify if the request exists
-  const reqKey = (new URL(req.url)).searchParams.get('reqKey');
+  const reqKey = (parse(req.url, true).query)['reqKey'] as string;
   if(!reqKey)
     return ws.close(1008, "Invalid Request");
-  if(await redis.exists(`${rediReqPrefix}${reqKey}`) === 0)
+  if(await redis.exists(`${redisReqIDPrefix}${reqKey}`) === 0)
     return ws.close(1008, "Invalid Request");
 
   // Setup the valid client
