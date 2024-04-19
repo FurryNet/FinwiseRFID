@@ -24,14 +24,14 @@ export const server = createServer((socket)=> {
       if(!req) {
         console.log("Received invalid auth request from client");
         socket.write(RFIDAuthData.encode({ID: reqType.checkAuth, data: Buffer.from('Invalid RFID Card', 'utf-8')}).finish());
-      } else if(req[1] === "approved") {
+      } else if(req[2] === "approved") {
         console.log("Received Duplicate Auth Request from Client");
         socket.write(RFIDAuthData.encode({ID: reqType.checkAuth, data: Buffer.from('Authentication already completed, maybe a site glitch?', 'utf-8')}).finish());
-      } else if(req[1] === "pending") {
+      } else if(req[2] === "pending") {
         // Approve user's request
-        await redis.set(reqKey, `${req[0]}:approved`);
+        await redis.set(reqKey, `${req[0]}:${req[1]}:approved`);
         socket.write(RFIDAuthData.encode({ID: reqType.checkAuth, data: Buffer.from('Authentication Success! You should be automatically logged in, if not, you can use the check button to manually do so.', 'utf-8')}).finish());
-        const client = searchClient(reqKey);
+        const client = searchClient(req[0]);
         client?.send("approved");
         client?.close();
       }
