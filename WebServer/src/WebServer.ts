@@ -1,25 +1,11 @@
-import express from 'express';
 import { createServer } from 'http';
 import websocket from "ws";
 import { URL } from 'url';
 import { redis, redisPrefix } from './database';
 
 
-export const server = express();
-const _server = createServer(server);
-
-
-const mainRoute = server.route('/auth');
+const server = createServer();
 const rediReqPrefix = `${redisPrefix}RFID:REQUEST:`;
-// Verify auth request
-mainRoute.get((req, res)=> {
-
-});
-
-// Submit auth request
-mainRoute.post((req, res)=> {
-
-});
 
 // Extend ws client to include request key
 interface wsClient extends websocket {
@@ -34,7 +20,7 @@ export function searchClient(key: string) {
 }
 
 
-export const ws_server = new websocket.Server({server: _server, path: '/auth'});
+export const ws_server = new websocket.Server({server, path: '/auth'});
 ws_server.on('connection', async (ws: wsClient, req)=> {
   // Sanitation Check
   if(!req.url)
@@ -44,7 +30,7 @@ ws_server.on('connection', async (ws: wsClient, req)=> {
   const reqKey = (new URL(req.url)).searchParams.get('reqKey');
   if(!reqKey)
     return ws.close(1008, "Invalid Request");
-  if((await redis.exists(`${rediReqPrefix}${reqKey}`)) === 0)
+  if(await redis.exists(`${rediReqPrefix}${reqKey}`) === 0)
     return ws.close(1008, "Invalid Request");
 
   // Setup the valid client
@@ -63,6 +49,6 @@ ws_server.on('connection', async (ws: wsClient, req)=> {
 
 
 
-_server.listen(80, ()=> {
+server.listen(80, ()=> {
   console.log("RFID REST Server is listening on port 80");
 });

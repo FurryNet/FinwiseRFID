@@ -24,11 +24,9 @@ export const server = createServer((socket)=> {
       if(!req) {
         console.log("Received invalid auth request from client");
         socket.write(RFIDAuthData.encode(new RFIDAuthData({ID: reqType.checkAuth, data: Buffer.from('Invalid RFID Card', 'utf-8')})).finish());
-        break;
       } else if(req[1] === "approved") {
         console.log("Received Duplicate Auth Request from Client");
         socket.write(RFIDAuthData.encode(new RFIDAuthData({ID: reqType.checkAuth, data: Buffer.from('Authentication already completed, maybe a site glitch?', 'utf-8')})).finish());
-        break;
       } else if(req[1] === "pending") {
         // Approve user's request
         await redis.set(reqKey, `${req[0]}:approved`);
@@ -36,7 +34,6 @@ export const server = createServer((socket)=> {
         const client = searchClient(reqKey);
         client?.send("approved");
         client?.close();
-        break;
       }
       break;
     }
@@ -55,4 +52,9 @@ export const server = createServer((socket)=> {
       clients.splice(index, 1);
     }
   });
+});
+
+const port = process.env["NFCAUTH_HW_SRV"] ? process.env["NFCAUTH_HW_SRV"].split(":")[1] : "1234";
+server.listen(port, () => {
+  console.log(`RFID Hardware Server is listening on port: ${port}`);
 });
